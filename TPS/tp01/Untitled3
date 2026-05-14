@@ -1,0 +1,50 @@
+#include <stdio.h>
+
+int tamanhoString(char s[]) {
+    int tam = 0;
+    while (s[tam] != '\0') {
+        tam++;
+    }
+    return tam;
+}
+
+int maiorSubstring(char s[]) {
+    int n = tamanhoString(s);
+    int maior = 0;
+
+    for (int i = 0; i < n; i++) {
+        int cont = 0;
+
+        for (int j = i; j < n; j++) {
+            int repetiu = 0;
+
+            for (int k = i; k < j; k++) {
+                if (s[k] == s[j]) {
+                    repetiu = 1;
+                }
+            }
+
+            if (repetiu == 1) {
+                break;
+            }
+
+            cont++;
+        }
+
+        if (cont > maior) {
+            maior = cont;
+        }
+    }
+
+    return maior;
+}
+
+int main() {
+    char s[1000];
+
+    while (scanf("%s", s) != EOF) {
+        printf("%d\n", maiorSubstring(s));
+    }
+
+    return 0;
+}

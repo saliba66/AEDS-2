@@ -1,0 +1,31 @@
+#include<stdio.h>
+
+
+int main(){
+char falho;
+char n[100];
+int x;
+int k = 0;
+scanf("%c s%",&falho ,n);
+for(int i = 0; n[i]!= '\0';i++){
+x++;
+}
+char novo[x];
+for(int j = 0; x<j;j++){
+if(n[j]!= falho){
+novo[k] = n[j];
+k++;
+}
+}
+int z = 0;
+for(int l = 0; l<x;l++){
+if(novo[l] = '0'){
+z++;
+}
+}
+if(z == x-1){
+printf("0");
+} else{
+printf("%s", novo + z);
+ }
+}
