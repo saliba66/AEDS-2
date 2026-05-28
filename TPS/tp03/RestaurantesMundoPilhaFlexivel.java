@@ -407,7 +407,7 @@ public class RestaurantesMundoPilhaFlexivel {
 
             } else if (comando.equals("R")) {
                 Restaurante removido = pilha.remover();
-                System.out.println("(R) " + removido.getNome());
+                System.out.println("(R)" + removido.getNome());
             }
         }
 

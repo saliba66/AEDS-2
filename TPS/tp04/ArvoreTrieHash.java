@@ -3,7 +3,7 @@ import java.io.FileWriter;
 import java.util.Locale;
 import java.util.Scanner;
 
-//comeco clase data 
+//comeco clase data ---------------------------------------------------------------------------------------------------
 
 class Data {
     private int ano;
@@ -47,19 +47,24 @@ class Data {
     public String formatar() {
         String nova = "";
 
-        if (dia < 10) nova += "0";
+        if (dia < 10) {
+            nova += "0";
+        }
+
         nova += dia + "/";
 
-        if (mes < 10) nova += "0";
-        nova += mes + "/";
+        if (mes < 10) {
+            nova += "0";
+        }
 
+        nova += mes + "/";
         nova += ano;
 
         return nova;
     }
 }
 
-//comeco classe hora----------------------------------------------------------------------------------------------------------
+//comeco classe hora---------------------------------------------------------------------------------------------------
 
 class Hora {
     private int hora;
@@ -93,17 +98,23 @@ class Hora {
     public String formatar() {
         String nova = "";
 
-        if (hora < 10) nova += "0";
+        if (hora < 10) {
+            nova += "0";
+        }
+
         nova += hora + ":";
 
-        if (minuto < 10) nova += "0";
+        if (minuto < 10) {
+            nova += "0";
+        }
+
         nova += minuto;
 
         return nova;
     }
 }
 
-//comeco da classe restaurante---------------------------------------------------------------------------------------
+//comeco da classe restaurante----------------------------------------------------------------------------------------
 
 class Restaurante {
     private int id;
@@ -117,6 +128,8 @@ class Restaurante {
     private Hora horarioFechamento;
     private Data dataAbertura;
     private boolean aberto;
+
+    //construtor restaurante-----------------------------------------------------------------------------------------
 
     public Restaurante(int id, String nome, String cidade, int capacidade, double avaliacao, String[] tiposCozinha,
             int faixaPreco, Hora horarioAbertura, Hora horarioFechamento, Data dataAbertura, boolean aberto) {
@@ -142,9 +155,7 @@ class Restaurante {
         return nome;
     }
 
-    public double getAvaliacao() {
-        return avaliacao;
-    }
+    //metodo que recebe a linha do csv, e organiza o restaurante------------------------------------------------------
 
     public static Restaurante parseRestaurante(String s) {
         Scanner scanner = new Scanner(s);
@@ -156,6 +167,8 @@ class Restaurante {
         String cidade = scanner.next();
         int capacidade = scanner.nextInt();
         double avaliacao = scanner.nextDouble();
+
+        // tipos de cozinha------------------------------------------------------------------------------------------
 
         String tipos = scanner.next();
         int quantidade = 1;
@@ -182,7 +195,11 @@ class Restaurante {
 
         tiposCozinha[pos] = aux;
 
+        // faixa de preco--------------------------------------------------------------------------------------------
+
         int faixaPreco = scanner.next().length();
+
+        // horarios--------------------------------------------------------------------------------------------------
 
         String horario = scanner.next();
         String h1 = "";
@@ -204,16 +221,26 @@ class Restaurante {
         Hora horarioAbertura = Hora.parseHora(h1);
         Hora horarioFechamento = Hora.parseHora(h2);
 
+        // data------------------------------------------------------------------------------------------------------
+
         Data dataAbertura = Data.parseData(scanner.next());
 
+        // boolean---------------------------------------------------------------------------------------------------
+
         String abertoStr = scanner.next();
-        boolean aberto = abertoStr.equals("true");
+        boolean aberto = false;
+
+        if (abertoStr.equals("true")) {
+            aberto = true;
+        }
 
         scanner.close();
 
         return new Restaurante(id, nome, cidade, capacidade, avaliacao, tiposCozinha,
                 faixaPreco, horarioAbertura, horarioFechamento, dataAbertura, aberto);
     }
+
+    // formatacao----------------------------------------------------------------------------------------------------
 
     public String formatar() {
         String nova = "";
@@ -224,7 +251,6 @@ class Restaurante {
         nova += cidade + " ## ";
         nova += capacidade + " ## ";
         nova += avaliacao + " ## ";
-
         nova += "[";
 
         for (int i = 0; i < tiposCozinha.length; i++) {
@@ -255,14 +281,17 @@ class Restaurante {
     }
 }
 
-//comeco da colecao----------------------------------------------------------------------------------------------------------
+//comeco da colecao---------------------------------------------------------------------------------------------------
 
 class ColecaoRestaurantes {
-    private int tamanho;
     private Restaurante[] restaurantes;
+    private int tamanho;
+
+    // leitura do csv------------------------------------------------------------------------------------------------
 
     public void lerCsv(String path) throws Exception {
         Scanner arquivo = new Scanner(new File(path));
+
         restaurantes = new Restaurante[10000];
         tamanho = 0;
 
@@ -270,8 +299,7 @@ class ColecaoRestaurantes {
 
         while (arquivo.hasNextLine()) {
             String linha = arquivo.nextLine();
-            Restaurante novo = Restaurante.parseRestaurante(linha);
-            restaurantes[tamanho] = novo;
+            restaurantes[tamanho] = Restaurante.parseRestaurante(linha);
             tamanho++;
         }
 
@@ -280,194 +308,177 @@ class ColecaoRestaurantes {
 
     public static ColecaoRestaurantes lerCsv() throws Exception {
         ColecaoRestaurantes colecao = new ColecaoRestaurantes();
-        colecao.lerCsv("/tmp/restaurantes.csv");
+        File arquivo = new File("/tmp/restaurantes.csv");
+
+        if (arquivo.exists()) {
+            colecao.lerCsv("/tmp/restaurantes.csv");
+        } else {
+            colecao.lerCsv("../tp02/restaurantes.csv");
+        }
+
         return colecao;
     }
 
+    // busca por id--------------------------------------------------------------------------------------------------
+
     public Restaurante buscarPorId(int id) {
+        Restaurante resp = null;
+
         for (int i = 0; i < tamanho; i++) {
             if (restaurantes[i].getId() == id) {
-                return restaurantes[i];
+                resp = restaurantes[i];
+                i = tamanho;
             }
         }
 
-        return null;
+        return resp;
     }
 }
 
-//celula dupla----------------------------------------------------------------------------------------------------------
+// no da trie---------------------------------------------------------------------------------------------------------
 
-class CelulaDupla {
-    Restaurante elemento;
-    CelulaDupla prox;
-    CelulaDupla ant;
+class NoTrie {
+    public static final int TAM = 255;
+    public NoTrie[] filhos;
+    public Restaurante elemento;
 
-    public CelulaDupla() {
-        this.elemento = null;
-        this.prox = null;
-        this.ant = null;
+    public NoTrie() {
+        filhos = new NoTrie[TAM];
+        elemento = null;
     }
 
-    public CelulaDupla(Restaurante elemento) {
-        this.elemento = elemento;
-        this.prox = null;
-        this.ant = null;
+    // hash do caractere---------------------------------------------------------------------------------------------
+
+    public int hash(char c) {
+        return ((int) c) % TAM;
+    }
+
+    // pegar filho---------------------------------------------------------------------------------------------------
+
+    public NoTrie getFilho(char c) {
+        return filhos[hash(c)];
+    }
+
+    // colocar filho-------------------------------------------------------------------------------------------------
+
+    public void setFilho(char c, NoTrie no) {
+        filhos[hash(c)] = no;
     }
 }
 
-//lista dupla flexivel----------------------------------------------------------------------------------------------------------
+// arvore trie com hash----------------------------------------------------------------------------------------------
 
-class ListaDupla {
-    private CelulaDupla primeiro;
-    private CelulaDupla ultimo;
+class TrieHash {
+    private NoTrie raiz;
+    public long comparacoes;
+    public long movimentacoes;
 
-    public ListaDupla() {
-        primeiro = new CelulaDupla();
-        ultimo = primeiro;
+    public TrieHash() {
+        raiz = new NoTrie();
+        comparacoes = 0;
+        movimentacoes = 0;
     }
 
-    // inserir fim-------------------------------------------------------------------------------------------------------------
+    // inserir-------------------------------------------------------------------------------------------------------
 
-    public void inserirFim(Restaurante x) {
-        CelulaDupla nova = new CelulaDupla(x);
+    public void inserir(Restaurante r) {
+        NoTrie atual = raiz;
+        String nome = r.getNome();
 
-        ultimo.prox = nova;
-        nova.ant = ultimo;
-        ultimo = nova;
-    }
+        for (int i = 0; i < nome.length(); i++) {
+            char c = nome.charAt(i);
 
-    public CelulaDupla getPrimeiroReal() {
-        return primeiro.prox;
-    }
+            if (atual.getFilho(c) == null) {
+                atual.setFilho(c, new NoTrie());
+                movimentacoes++;
+            }
 
-    public CelulaDupla getUltimo() {
-        return ultimo;
-    }
-
-    // mostrar----------------------------------------------------------------------------------------------------------------
-
-    public void mostrar() {
-        CelulaDupla i = primeiro.prox;
-
-        while (i != null) {
-            System.out.println(i.elemento.formatar());
-            i = i.prox;
+            atual = atual.getFilho(c);
         }
+
+        atual.elemento = r;
     }
-}
 
-//classe principal----------------------------------------------------------------------------------------------------------
+    // pesquisar-----------------------------------------------------------------------------------------------------
 
-public class RestaurantesMundoQuicksortParcial {
+    public Restaurante pesquisar(String nome) {
+        NoTrie atual = raiz;
+        Restaurante resp = null;
+        boolean continuar = true;
+        int i = 0;
 
-    static long comparacoes = 0;
-    static long movimentacoes = 0;
-
-    // comparar-------------------------------------------------------------------------------------------------------------
-    // Ordena por avaliacao crescente.
-    // Se a avaliacao for igual, ordena por nome crescente.
-
-    public static int comparar(Restaurante a, Restaurante b) {
-        comparacoes++;
-
-        if (a.getAvaliacao() < b.getAvaliacao()) {
-            return -1;
-        } else if (a.getAvaliacao() > b.getAvaliacao()) {
-            return 1;
-        } else {
+        while (i < nome.length() && continuar) {
+            char c = nome.charAt(i);
+            NoTrie prox = atual.getFilho(c);
             comparacoes++;
-            return a.getNome().compareTo(b.getNome());
-        }
-    }
 
-    // swap-------------------------------------------------------------------------------------------------------------
-
-    public static void swap(CelulaDupla a, CelulaDupla b) {
-        Restaurante tmp = a.elemento;
-        a.elemento = b.elemento;
-        b.elemento = tmp;
-
-        movimentacoes += 3;
-    }
-
-    // quicksort-------------------------------------------------------------------------------------------------------------
-    // Ordena a lista dupla flexivel.
-
-    public static void quicksort(CelulaDupla esq, CelulaDupla dir) {
-        if (esq == null || dir == null || esq == dir || esq == dir.prox) {
-            return;
-        }
-
-        CelulaDupla pivo = particionar(esq, dir);
-
-        quicksort(esq, pivo.ant);
-        quicksort(pivo.prox, dir);
-    }
-
-//-------------------------------------------------------------------------------------------------------------
-    // Usa o ultimo elemento como pivo.
-
-    public static CelulaDupla particionar(CelulaDupla esq, CelulaDupla dir) {
-        Restaurante pivo = dir.elemento;
-        CelulaDupla i = esq.ant;
-
-        for (CelulaDupla j = esq; j != dir; j = j.prox) {
-            if (comparar(j.elemento, pivo) <= 0) {
-                if (i == null) {
-                    i = esq;
-                } else {
-                    i = i.prox;
-                }
-
-                swap(i, j);
+            if (prox == null) {
+                continuar = false;
+            } else {
+                System.out.print(c + " ");
+                atual = prox;
+                i++;
             }
         }
 
-        if (i == null) {
-            i = esq;
-        } else {
-            i = i.prox;
+        if (continuar && i == nome.length() && atual.elemento != null) {
+            resp = atual.elemento;
         }
 
-        swap(i, dir);
-
-        return i;
+        return resp;
     }
+}
 
-    // main-------------------------------------------------------------------------------------------------------------
+// classe principal---------------------------------------------------------------------------------------------------
+
+public class ArvoreTrieHash {
 
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
+
         ColecaoRestaurantes colecao = ColecaoRestaurantes.lerCsv();
+        TrieHash trie = new TrieHash();
 
-        ListaDupla lista = new ListaDupla();
+        // leitura ids-----------------------------------------------------------------------------------------------
 
-        int id = scanner.nextInt();
+        String entrada = scanner.nextLine();
 
-        while (id != -1) {
+        while (!entrada.equals("-1")) {
+            int id = Integer.parseInt(entrada.trim());
             Restaurante r = colecao.buscarPorId(id);
 
             if (r != null) {
-                lista.inserirFim(r);
+                trie.inserir(r);
             }
 
-            id = scanner.nextInt();
+            entrada = scanner.nextLine();
         }
 
         long inicio = System.nanoTime();
 
-        if (lista.getPrimeiroReal() != null) {
-            quicksort(lista.getPrimeiroReal(), lista.getUltimo());
+        // pesquisas------------------------------------------------------------------------------------------------
+
+        entrada = scanner.nextLine();
+
+        while (!entrada.equals("FIM")) {
+            Restaurante resp = trie.pesquisar(entrada);
+
+            if (resp == null) {
+                System.out.println("NAO");
+            } else {
+                System.out.println("SIM " + resp.formatar());
+            }
+
+            entrada = scanner.nextLine();
         }
 
         long fim = System.nanoTime();
-
-        lista.mostrar();
-
         double tempo = (fim - inicio) / 1000000.0;
 
-        FileWriter log = new FileWriter("885005_quicksort_flexivel.txt");
-        log.write("885005\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
+        // arquivo log-----------------------------------------------------------------------------------------------
+
+        FileWriter log = new FileWriter("885005_trie_hash.txt");
+        log.write("885005\t" + trie.comparacoes + "\t" + trie.movimentacoes + "\t" + tempo);
         log.close();
 
         scanner.close();

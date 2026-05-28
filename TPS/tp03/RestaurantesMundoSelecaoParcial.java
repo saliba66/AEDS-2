@@ -464,7 +464,7 @@ public class RestaurantesMundoSelecaoParcial {
 
         // Como a questão pede ordenação parcial com k = 10,
         // imprimimos apenas os 10 primeiros registros ordenados.
-        for (int i = 0; i < 10 && i < n; i++) {
+        for (int i = 0;  i < 10 && i < n; i++) {
             System.out.println(selecionados[i].formatar());
         }
 

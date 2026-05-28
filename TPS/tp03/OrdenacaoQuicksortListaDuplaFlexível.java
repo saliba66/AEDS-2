@@ -59,7 +59,7 @@ class Data {
     }
 }
 
-//comeco classe hora----------------------------------------------------------------------------------------------------------
+//comeco classe hora----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class Hora {
     private int hora;
@@ -103,7 +103,7 @@ class Hora {
     }
 }
 
-//comeco da classe restaurante---------------------------------------------------------------------------------------
+//comeco da classe restaurante----------------------------------------------------------------------------------------------------------
 
 class Restaurante {
     private int id;
@@ -117,6 +117,8 @@ class Restaurante {
     private Hora horarioFechamento;
     private Data dataAbertura;
     private boolean aberto;
+
+//construtor restaurante---------------------------------------------------------------------------------------------------------------
 
     public Restaurante(int id, String nome, String cidade, int capacidade, double avaliacao, String[] tiposCozinha,
             int faixaPreco, Hora horarioAbertura, Hora horarioFechamento, Data dataAbertura, boolean aberto) {
@@ -146,6 +148,8 @@ class Restaurante {
         return avaliacao;
     }
 
+//metodo que recebe a linha do csv, e organiza o restaurante------------------------------------------------------------------------------------
+
     public static Restaurante parseRestaurante(String s) {
         Scanner scanner = new Scanner(s);
         scanner.useLocale(Locale.US);
@@ -156,6 +160,8 @@ class Restaurante {
         String cidade = scanner.next();
         int capacidade = scanner.nextInt();
         double avaliacao = scanner.nextDouble();
+
+// Tipos de cozinha----------------------------------------------------------------------------------------------------
 
         String tipos = scanner.next();
         int quantidade = 1;
@@ -182,7 +188,11 @@ class Restaurante {
 
         tiposCozinha[pos] = aux;
 
+// faixa de preco------------------------------------------------------------------------------------------------------
+
         int faixaPreco = scanner.next().length();
+
+// Horários------------------------------------------------------------------------------------------------------------
 
         String horario = scanner.next();
         String h1 = "";
@@ -204,7 +214,11 @@ class Restaurante {
         Hora horarioAbertura = Hora.parseHora(h1);
         Hora horarioFechamento = Hora.parseHora(h2);
 
+// Data-------------------------------------------------------------------------------------------------------------
+
         Data dataAbertura = Data.parseData(scanner.next());
+
+// boolean-------------------------------------------------------------------------------------------------------------
 
         String abertoStr = scanner.next();
         boolean aberto = abertoStr.equals("true");
@@ -214,6 +228,8 @@ class Restaurante {
         return new Restaurante(id, nome, cidade, capacidade, avaliacao, tiposCozinha,
                 faixaPreco, horarioAbertura, horarioFechamento, dataAbertura, aberto);
     }
+
+// formatacao-------------------------------------------------------------------------------------------------------------
 
     public String formatar() {
         String nova = "";
@@ -261,6 +277,8 @@ class ColecaoRestaurantes {
     private int tamanho;
     private Restaurante[] restaurantes;
 
+// leitura csv-------------------------------------------------------------------------------------------------------------
+
     public void lerCsv(String path) throws Exception {
         Scanner arquivo = new Scanner(new File(path));
         restaurantes = new Restaurante[10000];
@@ -284,6 +302,8 @@ class ColecaoRestaurantes {
         return colecao;
     }
 
+// busca-------------------------------------------------------------------------------------------------------------
+
     public Restaurante buscarPorId(int id) {
         for (int i = 0; i < tamanho; i++) {
             if (restaurantes[i].getId() == id) {
@@ -295,7 +315,7 @@ class ColecaoRestaurantes {
     }
 }
 
-//celula dupla----------------------------------------------------------------------------------------------------------
+// celula dupla----------------------------------------------------------------------------------------------------------
 
 class CelulaDupla {
     Restaurante elemento;
@@ -315,7 +335,7 @@ class CelulaDupla {
     }
 }
 
-//lista dupla flexivel----------------------------------------------------------------------------------------------------------
+// lista dupla flexivel----------------------------------------------------------------------------------------------------------
 
 class ListaDupla {
     private CelulaDupla primeiro;
@@ -326,7 +346,7 @@ class ListaDupla {
         ultimo = primeiro;
     }
 
-    // inserir fim-------------------------------------------------------------------------------------------------------------
+// inserir fim-------------------------------------------------------------------------------------------------------------
 
     public void inserirFim(Restaurante x) {
         CelulaDupla nova = new CelulaDupla(x);
@@ -344,7 +364,7 @@ class ListaDupla {
         return ultimo;
     }
 
-    // mostrar----------------------------------------------------------------------------------------------------------------
+// mostrar-------------------------------------------------------------------------------------------------------------
 
     public void mostrar() {
         CelulaDupla i = primeiro.prox;
@@ -358,14 +378,14 @@ class ListaDupla {
 
 //classe principal----------------------------------------------------------------------------------------------------------
 
-public class RestaurantesMundoQuicksortParcial {
+public class OrdenacaoQuicksortListaDuplaFlexivel{
 
     static long comparacoes = 0;
     static long movimentacoes = 0;
 
-    // comparar-------------------------------------------------------------------------------------------------------------
-    // Ordena por avaliacao crescente.
-    // Se a avaliacao for igual, ordena por nome crescente.
+// comparar-------------------------------------------------------------------------------------------------------------
+// Ordena por avaliacao crescente
+// Se a avaliacao for igual, ordena por nome crescente
 
     public static int comparar(Restaurante a, Restaurante b) {
         comparacoes++;
@@ -380,7 +400,8 @@ public class RestaurantesMundoQuicksortParcial {
         }
     }
 
-    // swap-------------------------------------------------------------------------------------------------------------
+// swap-------------------------------------------------------------------------------------------------------------
+// troca apenas os elementos das células
 
     public static void swap(CelulaDupla a, CelulaDupla b) {
         Restaurante tmp = a.elemento;
@@ -390,51 +411,40 @@ public class RestaurantesMundoQuicksortParcial {
         movimentacoes += 3;
     }
 
-    // quicksort-------------------------------------------------------------------------------------------------------------
-    // Ordena a lista dupla flexivel.
+// quicksort-------------------------------------------------------------------------------------------------------------
 
     public static void quicksort(CelulaDupla esq, CelulaDupla dir) {
-        if (esq == null || dir == null || esq == dir || esq == dir.prox) {
-            return;
-        }
+        CelulaDupla i = esq;
+        CelulaDupla j = dir;
+        Restaurante pivo = esq.elemento;
 
-        CelulaDupla pivo = particionar(esq, dir);
+        while (i != null && j != null && i.ant != j && i != j.prox) {
 
-        quicksort(esq, pivo.ant);
-        quicksort(pivo.prox, dir);
-    }
+            while (comparar(i.elemento, pivo) < 0) {
+                i = i.prox;
+            }
 
-//-------------------------------------------------------------------------------------------------------------
-    // Usa o ultimo elemento como pivo.
+            while (comparar(j.elemento, pivo) > 0) {
+                j = j.ant;
+            }
 
-    public static CelulaDupla particionar(CelulaDupla esq, CelulaDupla dir) {
-        Restaurante pivo = dir.elemento;
-        CelulaDupla i = esq.ant;
-
-        for (CelulaDupla j = esq; j != dir; j = j.prox) {
-            if (comparar(j.elemento, pivo) <= 0) {
-                if (i == null) {
-                    i = esq;
-                } else {
-                    i = i.prox;
-                }
-
+            if (i != null && j != null && i.ant != j && i != j.prox) {
                 swap(i, j);
+                i = i.prox;
+                j = j.ant;
             }
         }
 
-        if (i == null) {
-            i = esq;
-        } else {
-            i = i.prox;
+        if (esq != null && j != null && esq != j && esq.ant != j) {
+            quicksort(esq, j);
         }
 
-        swap(i, dir);
-
-        return i;
+        if (i != null && dir != null && i != dir && i.ant != dir) {
+            quicksort(i, dir);
+        }
     }
 
-    // main-------------------------------------------------------------------------------------------------------------
+// main-------------------------------------------------------------------------------------------------------------
 
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
