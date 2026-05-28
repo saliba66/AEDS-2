@@ -89,7 +89,8 @@ Além disso, praticar no Beecrowd ajuda muito a:
 ganhar velocidade
 melhorar lógica
 se acostumar com a sintaxe da linguagem
-entender o estilo das questões cobradas nas provas
+entender o estilo das questões cobradas nas provas,
+
 📌 Dica essencial
 Tente decorar ou dominar pelo menos um algoritmo de ordenação completo para utilizar nas provas práticas.
 Ordenações aparecem com muita frequência e podem ser extremamente úteis para resolver diversos tipos de problema.
